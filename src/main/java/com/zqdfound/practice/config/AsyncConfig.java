@@ -27,7 +27,7 @@ public class AsyncConfig {
         @Override
         public Thread newThread(Runnable r){
             Thread t = new Thread(r);
-            t.setName("async-thread-"+threadNumber.getAndIncrement());
+            t.setName("测试线程池-"+threadNumber.getAndIncrement());
             t.setDaemon(true);
             return t;
         }

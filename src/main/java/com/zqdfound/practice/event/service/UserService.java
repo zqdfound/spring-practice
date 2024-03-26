@@ -20,7 +20,14 @@ public class UserService {
         dto.setUserId(123);
         dto.setName("樱木花道");
         dto.setAge(11);
+        dto.setRemark(" ");
         applicationEventPublisher.publishEvent(dto);
+        System.out.println("======发布事件=============");
+    }
+
+    public void register( UserDTO dto){
+        applicationEventPublisher.publishEvent(dto);
+        System.out.println("======发布事件=============");
     }
 
 }

@@ -19,4 +19,8 @@ public class WxPayHandler implements PayHandler {
     public void dealPay() {
         System.out.println("微信支付");
     }
+
+    public static void main(String[] args) {
+        System.out.println(Thread.currentThread().getContextClassLoader());
+    }
 }

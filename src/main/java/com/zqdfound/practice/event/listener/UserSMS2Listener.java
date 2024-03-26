@@ -13,14 +13,14 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Slf4j
-public class UserSMSListener {
+public class UserSMS2Listener {
     //通过注解实现监听器，优先级要高于接口实现的监听器
     @EventListener
-    @Async("asyncThreadPool")//使用了线程池，不能保证执行顺序
-    @Order(0)
+    @Async("asyncThreadPool")
+    @Order(2)
     public void handleUserEvent(UserDTO userDTO){
-        log.info("执行顺序：0");
-        userDTO.setRemark(userDTO.getRemark()+"执行0");
+        log.info("执行顺序：2");
+        userDTO.setRemark(userDTO.getRemark()+"执行2");
 //        System.out.println("触发注解实现的用户监听器SMS："+userDTO.toString());
         log.info("触发注解实现的用户监听器SMS：{}",userDTO.toString());
     }

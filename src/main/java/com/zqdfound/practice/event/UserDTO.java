@@ -15,6 +15,7 @@ public class UserDTO extends ApplicationEvent {
     private Integer userId;
     private String name;
     private Integer age;
+    private String remark;
 
     public UserDTO(Object source) {
         super(source);
