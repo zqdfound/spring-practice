@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 public class UserSMSListener {
     //通过注解实现监听器，优先级要高于接口实现的监听器
     @EventListener
-    @Async("asyncThreadPool")//使用了线程池，不能保证执行顺序
+    //@Async("asyncThreadPool")//使用了线程池，不能保证执行顺序
     @Order(0)
     public void handleUserEvent(UserDTO userDTO){
         log.info("执行顺序：0");

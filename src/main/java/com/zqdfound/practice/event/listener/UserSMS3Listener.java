@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 public class UserSMS3Listener {
     //通过注解实现监听器，优先级要高于接口实现的监听器
     @EventListener
-    @Async("asyncThreadPool")
+    //@Async("asyncThreadPool")
     @Order(3)
     public void handleUserEvent(UserDTO userDTO){
         log.info("执行顺序：3");

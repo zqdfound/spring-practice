@@ -1,4 +1,4 @@
-package com.zqdfound.issue;
+package com.zqdfound;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -24,7 +24,8 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 @Configuration
 @EnableScheduling
 @SpringBootApplication
-public class DemoApplication implements ApplicationContextAware, SchedulingConfigurer {
+//public class DemoApplication implements ApplicationContextAware, SchedulingConfigurer {
+public class DemoApplication implements ApplicationContextAware {
     public static void main(String[] args) {
         SpringApplication.run(DemoApplication.class, args);
     }
@@ -80,13 +81,13 @@ public class DemoApplication implements ApplicationContextAware, SchedulingConfi
         context = applicationContext;
     }
 
-    @Override
-    public void configureTasks(ScheduledTaskRegistrar scheduledTaskRegistrar) {
-        ThreadPoolTaskScheduler threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
-
-        // It's necessary to have get() and addAndRemove running on separate threads
-        threadPoolTaskScheduler.setPoolSize(2);
-        threadPoolTaskScheduler.initialize();
-        scheduledTaskRegistrar.setTaskScheduler(threadPoolTaskScheduler);
-    }
+//    @Override
+//    public void configureTasks(ScheduledTaskRegistrar scheduledTaskRegistrar) {
+//        ThreadPoolTaskScheduler threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
+//
+//        // It's necessary to have get() and addAndRemove running on separate threads
+//        threadPoolTaskScheduler.setPoolSize(2);
+//        threadPoolTaskScheduler.initialize();
+//        scheduledTaskRegistrar.setTaskScheduler(threadPoolTaskScheduler);
+//    }
 }
