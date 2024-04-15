@@ -9,6 +9,7 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
+import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,24 +50,6 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
 //            }
 //        }
 //    }
-    /**
-     * 处理连接请求，客户端WebSocket发送握手包时会执行这一次请求
-     *
-     * @param ctx
-     * @param request
-     */
-    private void fullHttpRequestHandler(ChannelHandlerContext ctx, FullHttpRequest request) {
-        String uri = request.uri();
-        System.out.println("Dizhi:"+uri);
-//        Map<String, String> params = RequestUriUtils.getParams(uri);
-//        log.debug("客户端请求参数：{}", params);
-        // 判断请求路径是否跟配置中的一致
-//        if (webSocketProperties.getPath().equals(RequestUriUtils.getBasePath(uri)))
-//            // 因为有可能携带了参数，导致客户端一直无法返回握手包，因此在校验通过后，重置请求路径
-//            request.setUri(webSocketProperties.getPath());
-//        else
-//            ctx.close();
-    }
 
 
     /**
@@ -80,8 +63,9 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, TextWebSocketFrame textWebSocketFrame) throws Exception {
         //获取客户端发送的消息内容
+        String s = channelHandlerContext.channel().attr(attributeKey).get();//获取key参数值
         String text = textWebSocketFrame.text();
-        log.info("通道接收消息，id:{}");
+        log.info("通道接收消息，phone:{}",s);
         System.out.println("收到客户端发送来的消息:  " + text);
         //遍历出所有连接的通道
         for (Channel channel : clients) {
@@ -98,7 +82,6 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
      */
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-        ctx.channel().attr(attributeKey).set("");//设置key参数值
         String s = ctx.channel().attr(attributeKey).get();//获取key参数值
         log.info("通道连接，手机号:{}",s);
 
@@ -125,8 +108,32 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
     }
 
     @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        System.out.println("异常发生 " + cause.getMessage());
+        ctx.close(); //关闭连接
+    }
+    @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        System.out.println("触发事件");
+        if(evt instanceof IdleStateEvent) {
+            //将  evt 向下转型 IdleStateEvent
+            IdleStateEvent event = (IdleStateEvent) evt;
+            String eventType = null;
+            switch (event.state()) {
+                case READER_IDLE:
+                    eventType = "读空闲";
+                    break;
+                case WRITER_IDLE:
+                    eventType = "写空闲";
+                    break;
+                case ALL_IDLE:
+                    eventType = "读写空闲";
+                    break;
+            }
+            System.out.println(ctx.channel().remoteAddress() + "--超时时间--" + eventType);
+            System.out.println("服务器做相应处理..");
+            //如果发生空闲，我们关闭通道
+            // ctx.channel().close();
+        }
         if (evt instanceof WebSocketServerProtocolHandler.HandshakeComplete) {
             WebSocketServerProtocolHandler.HandshakeComplete complete = (WebSocketServerProtocolHandler.HandshakeComplete) evt;
             String uri = complete.requestUri();
@@ -139,6 +146,9 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
                     if (null != paramsArray && paramsArray.length > 1) {
                         //
                         String param = paramsArray[1];
+                        log.info("获取到手机号是：{}",param);
+                        //set phone number
+                        ctx.channel().attr(attributeKey).set(param);//设置key参数值
                     }
                     System.out.println("握手成功");
                 }

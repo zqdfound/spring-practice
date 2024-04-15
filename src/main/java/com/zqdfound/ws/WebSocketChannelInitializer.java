@@ -10,8 +10,10 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 
 import java.nio.charset.Charset;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Author: zhuangqingdian
@@ -32,10 +34,20 @@ public class WebSocketChannelInitializer extends ChannelInitializer<SocketChanne
                 .addLast(new HttpObjectAggregator(1024 * 64))
                 //设置websocket连接前缀前缀
 //                .addLast(new WebSocketServerProtocolHandler("/ws",true))
-                .addLast(new WebSocketServerProtocolHandler("/ws", null, true, 65536 * 10,false,true))
+                .addLast(new WebSocketServerProtocolHandler("/ws", null, true, 65536 * 10, false, true))
+                /*
+                                   说明
+                                   1. IdleStateHandler 是netty 提供的处理空闲状态的处理器
+                                   2. long readerIdleTime : 表示多长时间没有读, 就会发送一个心跳检测包检测是否连接
+                                   3. long writerIdleTime : 表示多长时间没有写, 就会发送一个心跳检测包检测是否连接
+                                   4. long allIdleTime : 表示多长时间没有读写, 就会发送一个心跳检测包检测是否连接
 
 
-                //添加自定义处理器（这个ChatHandler请继续看文章）
+                *                  5. 当 IdleStateEvent 触发后 , 就会传递给管道 的下一个handler去处理
+                *                  通过调用(触发)下一个handler 的 userEventTiggered , 在该方法中去处理 IdleStateEvent(读空闲，写空闲，读写空闲)
+                                    */
+                .addLast(new IdleStateHandler(7000, 7000, 10, TimeUnit.SECONDS))
+                //添加自定义处理器
                 .addLast(new ChatHandler())
 //                .addLast(new ChatCheckHandler())
         ;

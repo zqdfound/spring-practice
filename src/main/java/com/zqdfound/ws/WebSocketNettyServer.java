@@ -29,12 +29,13 @@ public class WebSocketNettyServer {
                 .group(mainGrp, subGrp)
                 // 指定Netty通道类型
                 .channel(NioServerSocketChannel.class)
+//                .childOption()
                 // 指定通道初始化器用来加载当Channel收到事件消息后
                 .childHandler(new WebSocketChannelInitializer());
     }
 
     public void start() {
-        // 绑定服务器端口，以异步的方式启动服务器
+        // 绑定服务器端口
         try {
             ChannelFuture future = serverBootstrap.bind(12424).sync();
         } catch (InterruptedException e) {
